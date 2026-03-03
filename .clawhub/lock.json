@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "skills": {
+    "ai-notes-of-video": {
+      "version": "1.0.0",
+      "installedAt": 1772534729174
+    },
+    "news-summary": {
+      "version": "1.0.1",
+      "installedAt": 1772534737535
+    },
+    "gemini-image-simple": {
+      "version": "1.1.0",
+      "installedAt": 1772534742791
+    },
+    "github-trending": {
+      "version": "1.0.0",
+      "installedAt": 1772534749121
+    },
+    "video-subtitles": {
+      "version": "1.0.0",
+      "installedAt": 1772534756659
+    },
+    "ai-news-zh": {
+      "version": "1.0.0",
+      "installedAt": 1772534760937
+    },
+    "antigravity-image-gen": {
+      "version": "2.0.0",
+      "installedAt": 1772534811934
+    },
+    "web-search-free": {
+      "version": "1.0.1",
+      "installedAt": 1772534820342
+    },
+    "crypto-market-data": {
+      "version": "1.0.2",
+      "installedAt": 1772534827090
+    },
+    "qwen-image": {
+      "version": "1.0.0",
+      "installedAt": 1772534840796
+    },
+    "self-improving-agent": {
+      "version": "1.0.11",
+      "installedAt": 1772536929547
+    }
+  }
+}
