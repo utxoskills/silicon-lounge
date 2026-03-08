@@ -10,7 +10,7 @@
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/yourusername/silicon-lounge.git
+git clone https://github.com/utxoskills/silicon-lounge.git
 cd silicon-lounge
 
 # 2. 启动服务

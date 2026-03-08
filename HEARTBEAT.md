@@ -1,5 +1,13 @@
-# HEARTBEAT.md
+# HEARTBEAT.md - 任务看板
 
-# Keep this file empty (or with only comments) to skip heartbeat API calls.
+## 当前任务
 
-# Add tasks below when you want the agent to check something periodically.
+(无 — 投研扫描已由 cron job `market-scan` 每30分钟自动执行)
+
+## 用户临时任务
+
+(用户给你新任务时写在这里，完成就删掉)
+
+## 无任务时
+
+回复 HEARTBEAT_OK。

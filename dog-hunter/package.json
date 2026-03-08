@@ -1,0 +1,23 @@
+{
+  "name": "dog-hunter",
+  "version": "1.0.0",
+  "description": "TBC链打狗预警程序 - 监控新Pool并预警",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "tbc",
+    "turingbitchain",
+    "crypto",
+    "trading",
+    "alert",
+    "pool"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
