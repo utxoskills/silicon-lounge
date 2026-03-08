@@ -16,6 +16,7 @@ import { roomRoutes } from './routes/rooms';
 import { agentRoutes } from './routes/agents';
 import { werewolfRoutes } from './routes/werewolf';
 import { arenaRoutes } from './routes/arena';
+import { aiAdapterRoutes } from './routes/ai-adapter';
 
 // Socket Handlers
 import { setupSocketHandlers } from './socket/handlers';
@@ -29,6 +30,9 @@ import { WerewolfService } from './services/werewolf';
 import { QuizService } from './services/quiz';
 import { LeaderboardService } from './services/leaderboard';
 import { MatchmakingService } from './services/matchmaking';
+import { AIAdapterService } from './services/ai-adapter';
+import { QuizAIAdapter } from './services/quiz-ai-adapter';
+import { WerewolfAIAdapter } from './services/werewolf-ai-adapter';
 
 dotenv.config();
 
@@ -45,6 +49,9 @@ let werewolfService: WerewolfService;
 let quizService: QuizService;
 let leaderboardService: LeaderboardService;
 let matchmakingService: MatchmakingService;
+let aiAdapterService: AIAdapterService;
+let quizAIAdapter: QuizAIAdapter;
+let werewolfAIAdapter: WerewolfAIAdapter;
 
 // Redis 连接
 const pubClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
@@ -65,33 +72,39 @@ async function main() {
   quizService = new QuizService(pubClient);
   leaderboardService = new LeaderboardService(pubClient);
   matchmakingService = new MatchmakingService(pubClient);
+  aiAdapterService = new AIAdapterService(pubClient, app);
+  quizAIAdapter = new QuizAIAdapter(pubClient, aiAdapterService, quizService);
+  werewolfAIAdapter = new WerewolfAIAdapter(pubClient, aiAdapterService);
 
   // 初始化默认房间
   await roomService.initializeDefaultRooms();
 
   // 注册路由
-  await app.register(verificationRoutes, { 
-    prefix: '/api/v1/verify', 
-    service: verificationService 
+  await app.register(verificationRoutes, {
+    prefix: '/api/v1/verify',
+    service: verificationService
   });
-  await app.register(roomRoutes, { 
-    prefix: '/api/v1/rooms', 
-    service: roomService 
+  await app.register(roomRoutes, {
+    prefix: '/api/v1/rooms',
+    service: roomService
   });
-  await app.register(agentRoutes, { 
-    prefix: '/api/v1/agents', 
-    service: agentService 
+  await app.register(agentRoutes, {
+    prefix: '/api/v1/agents',
+    service: agentService
   });
-  await app.register(werewolfRoutes, { 
-    prefix: '/api/v1/werewolf', 
-    service: werewolfService 
+  await app.register(werewolfRoutes, {
+    prefix: '/api/v1/werewolf',
+    service: werewolfService
   });
-  await app.register(arenaRoutes, { 
-    prefix: '/api/v1/arena', 
+  await app.register(arenaRoutes, {
+    prefix: '/api/v1/arena',
     quizService,
     leaderboardService,
     matchmakingService,
+    aiAdapterService,
+    quizAIAdapter,
   });
+  await app.register(aiAdapterRoutes, { prefix: '/api/v1' });
 
   // 健康检查
   app.get('/health', async () => ({
@@ -106,13 +119,14 @@ async function main() {
       quiz: true,
       leaderboard: true,
       matchmaking: true,
+      aiAdapter: true,
     },
   }));
 
   // 启动 HTTP 服务器
   const port = parseInt(process.env.PORT || '8080');
   const host = process.env.HOST || '0.0.0.0';
-  
+
   await app.listen({ port, host });
   app.log.info(`╔════════════════════════════════════════════════════════╗`);
   app.log.info(`║     🎮 Silicon Lounge - AI Arena Platform 🎮          ║`);
@@ -125,6 +139,7 @@ async function main() {
   app.log.info(`║    • Werewolf (AI Auto-play)                          ║`);
   app.log.info(`║    • Leaderboard & Rating System                      ║`);
   app.log.info(`║    • Matchmaking                                       ║`);
+  app.log.info(`║    • AI Adapter (SSE + HTTP)                          ║`);
   app.log.info(`╚════════════════════════════════════════════════════════╝`);
 
   // 启动 Socket.io 服务器
