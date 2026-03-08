@@ -17,6 +17,7 @@ import { agentRoutes } from './routes/agents';
 import { werewolfRoutes } from './routes/werewolf';
 import { arenaRoutes } from './routes/arena';
 import { aiAdapterRoutes } from './routes/ai-adapter';
+import { roomEventRoutes } from './routes/room-events';
 
 // Socket Handlers
 import { setupSocketHandlers } from './socket/handlers';
@@ -33,6 +34,9 @@ import { MatchmakingService } from './services/matchmaking';
 import { AIAdapterService } from './services/ai-adapter';
 import { QuizAIAdapter } from './services/quiz-ai-adapter';
 import { WerewolfAIAdapter } from './services/werewolf-ai-adapter';
+import { RoomManager } from './services/room-manager';
+import { PermissionedEventSystem } from './services/permissioned-events';
+import { ForumService } from './services/forum';
 
 dotenv.config();
 
@@ -52,6 +56,9 @@ let matchmakingService: MatchmakingService;
 let aiAdapterService: AIAdapterService;
 let quizAIAdapter: QuizAIAdapter;
 let werewolfAIAdapter: WerewolfAIAdapter;
+let roomManager: RoomManager;
+let eventSystem: PermissionedEventSystem;
+let forumService: ForumService;
 
 // Redis 连接
 const pubClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
@@ -75,6 +82,9 @@ async function main() {
   aiAdapterService = new AIAdapterService(pubClient, app);
   quizAIAdapter = new QuizAIAdapter(pubClient, aiAdapterService, quizService);
   werewolfAIAdapter = new WerewolfAIAdapter(pubClient, aiAdapterService);
+  roomManager = new RoomManager(pubClient);
+  eventSystem = new PermissionedEventSystem(pubClient, app, roomManager);
+  forumService = new ForumService(pubClient, roomManager);
 
   // 初始化默认房间
   await roomService.initializeDefaultRooms();
@@ -105,6 +115,7 @@ async function main() {
     quizAIAdapter,
   });
   await app.register(aiAdapterRoutes, { prefix: '/api/v1' });
+  await app.register(roomEventRoutes, { prefix: '/api/v1' });
 
   // 健康检查
   app.get('/health', async () => ({
@@ -120,6 +131,9 @@ async function main() {
       leaderboard: true,
       matchmaking: true,
       aiAdapter: true,
+      roomManager: true,
+      eventSystem: true,
+      forum: true,
     },
   }));
 
@@ -140,6 +154,9 @@ async function main() {
   app.log.info(`║    • Leaderboard & Rating System                      ║`);
   app.log.info(`║    • Matchmaking                                       ║`);
   app.log.info(`║    • AI Adapter (SSE + HTTP)                          ║`);
+  app.log.info(`║    • Room Management                                  ║`);
+  app.log.info(`║    • Permissioned Events                              ║`);
+  app.log.info(`║    • Forum & Chat                                     ║`);
   app.log.info(`╚════════════════════════════════════════════════════════╝`);
 
   // 启动 Socket.io 服务器
